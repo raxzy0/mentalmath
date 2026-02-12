@@ -24,25 +24,25 @@ function App() {
     <div className="app">
       <nav className="navbar">
         <div className="nav-content">
-          <div className="nav-brand">🧮 Mental Math</div>
+          <div className="nav-brand">mental math</div>
           <div className="nav-links">
             <button
               className={`nav-link ${currentPage === 'game' ? 'active' : ''}`}
               onClick={() => setCurrentPage('game')}
             >
-              Game
+              play
             </button>
             <button
               className={`nav-link ${currentPage === 'history' ? 'active' : ''}`}
               onClick={() => setCurrentPage('history')}
             >
-              History
+              history
             </button>
             <button
               className={`nav-link ${currentPage === 'statistics' ? 'active' : ''}`}
               onClick={() => setCurrentPage('statistics')}
             >
-              Statistics
+              stats
             </button>
           </div>
         </div>

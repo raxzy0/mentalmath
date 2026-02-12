@@ -34,55 +34,54 @@ export const clearHistory = () => {
 // Statistics calculations
 export const calculateStats = () => {
   const history = getMatchHistory();
-  
+
   if (history.length === 0) {
     return {
       totalMatches: 0,
       overallAccuracy: 0,
       averageScore: 0,
-      averageTime: 0,
       bestScore: 0,
-      worstScore: 0,
-      accuracyByDifficulty: {},
+      totalQuestionsAnswered: 0,
+      averageQpm: 0,
       accuracyByOperation: {},
-      accuracyTrend: [],
+      scoreTrend: [],
+      scoreByDuration: {},
     };
   }
 
   const totalMatches = history.length;
   let totalCorrect = 0;
   let totalQuestions = 0;
-  let totalTime = 0;
-  let bestScore = 0;
-  let worstScore = 100;
 
-  const difficultyStats = {};
   const operationStats = {};
-  const accuracyTrend = [];
+  const scoreTrend = [];
+  const durationStats = {};
 
   history.forEach((match) => {
-    const { score, total, difficulty, timeTaken, questions } = match;
-    const accuracy = (score / total) * 100;
+    const { score, total, timerDuration, questions } = match;
+    const accuracy = total > 0 ? (score / total) * 100 : 0;
 
     totalCorrect += score;
     totalQuestions += total;
-    totalTime += timeTaken || 0;
 
-    if (accuracy > bestScore) bestScore = accuracy;
-    if (accuracy < worstScore) worstScore = accuracy;
-
-    // Track accuracy trend
-    accuracyTrend.push({
+    // Score trend
+    scoreTrend.push({
       date: new Date(match.timestamp).toLocaleDateString(),
+      score: score,
       accuracy: accuracy,
+      duration: timerDuration || 0,
     });
 
-    // By difficulty
-    if (!difficultyStats[difficulty]) {
-      difficultyStats[difficulty] = { correct: 0, total: 0 };
+    // By duration
+    const durKey = timerDuration ? `${timerDuration}s` : 'unknown';
+    if (!durationStats[durKey]) {
+      durationStats[durKey] = { scores: [], accuracies: [], best: 0 };
     }
-    difficultyStats[difficulty].correct += score;
-    difficultyStats[difficulty].total += total;
+    durationStats[durKey].scores.push(score);
+    durationStats[durKey].accuracies.push(accuracy);
+    if (score > durationStats[durKey].best) {
+      durationStats[durKey].best = score;
+    }
 
     // By operation
     if (questions) {
@@ -99,15 +98,17 @@ export const calculateStats = () => {
     }
   });
 
-  const overallAccuracy = (totalCorrect / totalQuestions) * 100;
+  const overallAccuracy = totalQuestions > 0 ? (totalCorrect / totalQuestions) * 100 : 0;
   const averageScore = totalCorrect / totalMatches;
-  const averageTime = totalTime / totalMatches;
+  const bestScore = Math.max(...history.map((m) => m.score));
 
-  const accuracyByDifficulty = {};
-  Object.keys(difficultyStats).forEach((key) => {
-    accuracyByDifficulty[key] =
-      (difficultyStats[key].correct / difficultyStats[key].total) * 100;
-  });
+  // Average questions per minute across all matches
+  const qpmValues = history
+    .filter((m) => m.timerDuration && m.timerDuration > 0)
+    .map((m) => (m.total / m.timerDuration) * 60);
+  const averageQpm = qpmValues.length > 0
+    ? qpmValues.reduce((a, b) => a + b, 0) / qpmValues.length
+    : 0;
 
   const accuracyByOperation = {};
   Object.keys(operationStats).forEach((key) => {
@@ -115,16 +116,26 @@ export const calculateStats = () => {
       (operationStats[key].correct / operationStats[key].total) * 100;
   });
 
+  const scoreByDuration = {};
+  Object.keys(durationStats).forEach((key) => {
+    const d = durationStats[key];
+    scoreByDuration[key] = {
+      avg: (d.scores.reduce((a, b) => a + b, 0) / d.scores.length).toFixed(1),
+      best: d.best,
+      matches: d.scores.length,
+    };
+  });
+
   return {
     totalMatches,
-    overallAccuracy: overallAccuracy.toFixed(2),
-    averageScore: averageScore.toFixed(2),
-    averageTime: averageTime.toFixed(2),
-    bestScore: bestScore.toFixed(2),
-    worstScore: worstScore.toFixed(2),
-    accuracyByDifficulty,
+    overallAccuracy: overallAccuracy.toFixed(1),
+    averageScore: averageScore.toFixed(1),
+    bestScore,
+    totalQuestionsAnswered: totalQuestions,
+    averageQpm: averageQpm.toFixed(1),
     accuracyByOperation,
-    accuracyTrend,
+    scoreTrend,
+    scoreByDuration,
   };
 };
 
