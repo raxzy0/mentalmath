@@ -1,6 +1,6 @@
 // Utility functions for localStorage operations
 
-const STORAGE_KEY = 'mentalMathHistory';
+const STORAGE_KEY = 'mentalMathMatches';
 
 export const saveMatch = (matchData) => {
   const history = getMatchHistory();
