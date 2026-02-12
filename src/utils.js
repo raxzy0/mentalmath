@@ -14,7 +14,12 @@ export const saveMatch = (matchData) => {
 
 export const getMatchHistory = () => {
   const data = localStorage.getItem(STORAGE_KEY);
-  return data ? JSON.parse(data) : [];
+  try {
+    return data ? JSON.parse(data) : [];
+  } catch (error) {
+    console.error('Error parsing match history:', error);
+    return [];
+  }
 };
 
 export const getMatchById = (id) => {
