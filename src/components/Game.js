@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { saveMatch } from '../utils';
 import './Game.css';
 
