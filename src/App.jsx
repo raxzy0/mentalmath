@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import Game from './components/Game';
-import History from './components/History';
-import Statistics from './components/Statistics';
+import Game from './components/Game.jsx';
+import History from './components/History.jsx';
+import Statistics from './components/Statistics.jsx';
 import './App.css';
 
 function App() {

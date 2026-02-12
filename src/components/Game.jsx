@@ -4,12 +4,12 @@ import './Game.css';
 
 const DIFFICULTY_SETTINGS = {
   Easy: {
-    range: [1, 10],
+    range: [1, 20],
     operations: ['+', '-'],
   },
   Medium: {
     range: [1, 50],
-    operations: ['+', '-', '×'],
+    operations: ['+', '-', '×', '÷'],
   },
   Hard: {
     range: [1, 100],
